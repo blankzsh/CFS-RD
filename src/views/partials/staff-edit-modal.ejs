@@ -48,6 +48,7 @@
 </div>
 
 <script>
+// 监听模态框显示事件
 document.getElementById('editStaffModal').addEventListener('show.bs.modal', function (event) {
     const button = event.relatedTarget;
     const staffId = button.getAttribute('data-staff-id');
@@ -66,6 +67,7 @@ document.getElementById('editStaffModal').addEventListener('show.bs.modal', func
     form.querySelector('[name="fame"]').value = staffFame;
 });
 
+// 监听表单提交事件
 document.getElementById('editStaffForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -73,10 +75,12 @@ document.getElementById('editStaffForm').addEventListener('submit', async functi
     const staffId = form.getAttribute('data-staff-id');
     const errorDiv = form.querySelector('#editError');
     const submitBtn = form.querySelector('button[type="submit"]');
+    const modal = document.getElementById('editStaffModal');
     
     try {
         // 禁用提交按钮
         submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>保存中...';
         
         // 收集表单数据
         const formData = {
@@ -110,6 +114,10 @@ document.getElementById('editStaffForm').addEventListener('submit', async functi
             throw new Error(data.error || '保存失败');
         }
         
+        // 关闭模态框
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal.hide();
+        
         // 成功后刷新页面
         window.location.reload();
         
@@ -120,6 +128,7 @@ document.getElementById('editStaffForm').addEventListener('submit', async functi
         
         // 重新启用提交按钮
         submitBtn.disabled = false;
+        submitBtn.innerHTML = '保存';
     }
 });
 </script> 

@@ -3,49 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CFS球队编辑器</title>
+    <title><%= typeof title !== 'undefined' ? title + ' - ' : '' %>CFS球队编辑器</title>
+    
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link href="/css/main.css" rel="stylesheet">
-    <%- defineContent('head') %>
+    
+    <!-- 自定义全局样式 -->
+    <style>
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .navbar {
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            color: #0d6efd !important;
+        }
+
+        .navbar-brand i {
+            font-size: 1.4rem;
+            margin-right: 0.5rem;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: #212529 !important;
+        }
+
+        .nav-link:hover, 
+        .nav-link.active {
+            color: #0d6efd !important;
+        }
+
+        .btn {
+            font-weight: 500;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading.show {
+            display: flex;
+        }
+    </style>
 </head>
 <body>
     <!-- 导航栏 -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="/">CFS球队编辑器</a>
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-database-fill"></i>
+                CFS球队编辑器
+            </a>
+            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/teams">球队管理</a>
+                        <a class="nav-link <%= typeof title !== 'undefined' && title === '首页' ? 'active' : '' %>" href="/">
+                            <i class="bi bi-house"></i> 首页
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/staff">员工管理</a>
+                        <a class="nav-link <%= typeof title !== 'undefined' && title === '球队管理' ? 'active' : '' %>" href="/teams">
+                            <i class="bi bi-people"></i> 球队管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <%= typeof title !== 'undefined' && title === '员工管理' ? 'active' : '' %>" href="/staff">
+                            <i class="bi bi-person-badge"></i> 员工管理
+                        </a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- 主要内容 -->
-    <main class="container my-4">
+    <!-- 页面内容 -->
+    <div class="page-content">
         <%- body %>
-    </main>
+    </div>
 
-    <footer class="footer mt-5 py-3 bg-light">
-        <div class="container text-center">
-            <span class="text-muted">© 2024 卡尔纳斯工作室. All rights reserved.</span>
+    <!-- 加载动画 -->
+    <div class="loading">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">加载中...</span>
         </div>
-    </footer>
+    </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <%- defineContent('scripts') %>
+    
+    <!-- 全局脚本 -->
+    <script>
+        // 显示/隐藏加载动画
+        function showLoading() {
+            document.querySelector('.loading').classList.add('show');
+        }
+        
+        function hideLoading() {
+            document.querySelector('.loading').classList.remove('show');
+        }
+
+        // 页面加载完成时隐藏加载动画
+        window.addEventListener('load', hideLoading);
+
+        // 为所有表单添加加载动画
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', () => {
+                    showLoading();
+                });
+            });
+
+            // 为所有链接添加加载提示
+            document.querySelectorAll('a').forEach(link => {
+                if (link.href && !link.getAttribute('download') && !link.getAttribute('target')) {
+                    link.addEventListener('click', (e) => {
+                        if (!e.ctrlKey && !e.shiftKey && !e.metaKey) {
+                            showLoading();
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html> 
