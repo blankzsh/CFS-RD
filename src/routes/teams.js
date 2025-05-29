@@ -20,6 +20,17 @@ router.use((req, res, next) => {
     next();
 });
 
+// 关闭数据库连接
+async function closeDatabase() {
+    if (db) {
+        await db.close();
+        db = null;
+    }
+}
+
+// 导出关闭数据库方法
+router.closeDatabase = closeDatabase;
+
 // 获取球队列表
 router.get('/', async (req, res, next) => {
     try {

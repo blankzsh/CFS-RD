@@ -80,35 +80,63 @@ const dbUpload = multer({
 let currentDbPath = null;
 
 // 清理临时文件的函数
-function cleanupTempFile(filePath) {
+async function cleanupTempFile(filePath) {
     if (filePath && fs.existsSync(filePath)) {
-        fs.unlink(filePath, (err) => {
-            if (err) {
-                console.error('清理临时文件失败:', err);
-            } else {
-                console.log('已清理临时文件:', filePath);
+        try {
+            // 如果是数据库文件，先关闭连接
+            if (filePath === app.get('dbPath')) {
+                const routes = require('./routes');
+                if (routes.staff && routes.staff.closeDatabase) {
+                    await routes.staff.closeDatabase();
+                }
+                if (routes.teams && routes.teams.closeDatabase) {
+                    await routes.teams.closeDatabase();
+                }
+                app.set('dbPath', null);
             }
-        });
+
+            // 等待一小段时间确保连接完全关闭
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            // 删除主数据库文件
+            await fs.promises.unlink(filePath);
+            console.log('已清理临时文件:', filePath);
+
+            // 删除相关的WAL和SHM文件
+            const walFile = `${filePath}-wal`;
+            const shmFile = `${filePath}-shm`;
+            
+            if (fs.existsSync(walFile)) {
+                await fs.promises.unlink(walFile);
+                console.log('已清理WAL文件:', walFile);
+            }
+            if (fs.existsSync(shmFile)) {
+                await fs.promises.unlink(shmFile);
+                console.log('已清理SHM文件:', shmFile);
+            }
+        } catch (err) {
+            console.error('清理临时文件失败:', err);
+            // 不抛出错误，继续执行
+        }
     }
 }
 
 // 清理所有临时文件
-function cleanupAllTempFiles() {
+async function cleanupAllTempFiles() {
     const tempDir = path.join(__dirname, 'uploads', 'temp');
     if (fs.existsSync(tempDir)) {
-        fs.readdir(tempDir, (err, files) => {
-            if (err) {
-                console.error('读取临时目录失败:', err);
-                return;
-            }
+        try {
+            const files = await fs.promises.readdir(tempDir);
             
-            files.forEach(file => {
+            for (const file of files) {
                 const filePath = path.join(tempDir, file);
                 if (filePath !== currentDbPath) {  // 不删除当前使用的文件
-                    cleanupTempFile(filePath);
+                    await cleanupTempFile(filePath);
                 }
-            });
-        });
+            }
+        } catch (err) {
+            console.error('读取临时目录失败:', err);
+        }
     }
 }
 
@@ -194,7 +222,7 @@ app.get('/api/database/export', (req, res) => {
 });
 
 // 退出数据库API
-app.post('/api/database/exit', (req, res) => {
+app.post('/api/database/exit', async (req, res) => {
     try {
         const dbPath = app.get('dbPath');
         if (!dbPath) {
@@ -202,14 +230,14 @@ app.post('/api/database/exit', (req, res) => {
         }
 
         // 清理当前数据库文件
-        cleanupTempFile(currentDbPath);
+        await cleanupTempFile(currentDbPath);
         
         // 重置数据库路径
         currentDbPath = null;
-        app.set('dbPath', null);
 
         res.json({ success: true, message: '已成功退出数据库' });
     } catch (err) {
+        console.error('退出数据库失败:', err);
         res.status(500).json({ error: err.message });
     }
 });
