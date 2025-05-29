@@ -1,0 +1,37 @@
+{
+	"name": "cfs-web",
+	"version": "1.0.0",
+	"description": "CFS球队编辑器的Web版本",
+	"main": "src/app.js",
+	"scripts": {
+		"start": "node src/app.js",
+		"dev": "nodemon src/app.js",
+		"sass": "sass src/public/scss:src/public/css",
+		"sass:watch": "sass --watch src/public/scss:src/public/css",
+		"build-css": "sass src/public/scss:src/public/css --style compressed",
+		"setup": "node scripts/setup-assets.js"
+	},
+	"keywords": [
+		"cfs",
+		"football",
+		"team",
+		"editor",
+		"web"
+	],
+	"author": "卡尔纳斯工作室",
+	"license": "MIT",
+	"dependencies": {
+		"bootstrap": "^5.3.6",
+		"ejs": "^3.1.10",
+		"express": "^5.1.0",
+		"express-ejs-layouts": "^2.5.1",
+		"express-session": "^1.18.1",
+		"multer": "^2.0.0",
+		"sass": "^1.89.0",
+		"sqlite3": "^5.1.7",
+		"uuid": "^11.1.0"
+	},
+	"devDependencies": {
+		"nodemon": "^3.1.0"
+	}
+}

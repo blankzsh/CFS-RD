@@ -1,0 +1,134 @@
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h2 class="card-title mb-4">欢迎使用CFS球队编辑器</h2>
+                    
+                    <% if (!dbPath) { %>
+                        <div class="alert alert-warning" role="alert">
+                            <h4 class="alert-heading mb-3">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                未连接数据库
+                            </h4>
+                            <p>请先选择一个数据库文件以开始使用编辑器。</p>
+                        </div>
+                        
+                        <form id="dbForm" class="mt-3">
+                            <div class="input-group">
+                                <input type="file" class="form-control" id="dbFile" name="database" accept=".db" required>
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="bi bi-upload"></i>
+                                    上传数据库
+                                </button>
+                            </div>
+                            <div id="uploadProgress" class="progress mt-2 d-none">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"></div>
+                            </div>
+                        </form>
+                    <% } else { %>
+                        <div class="alert alert-success" role="alert">
+                            <h4 class="alert-heading mb-3">
+                                <i class="bi bi-check-circle"></i>
+                                数据库已连接
+                            </h4>
+                            <p class="mb-0">当前数据库: <%= dbPath %></p>
+                        </div>
+                        
+                        <div class="d-grid gap-3 col-md-6 mx-auto mt-4">
+                            <a href="/teams" class="btn btn-primary btn-lg">
+                                <i class="bi bi-people"></i>
+                                管理球队
+                            </a>
+                            <a href="/staff" class="btn btn-secondary btn-lg">
+                                <i class="bi bi-person-badge"></i>
+                                管理员工
+                            </a>
+                            <button onclick="exportDatabase()" class="btn btn-info btn-lg">
+                                <i class="bi bi-download"></i>
+                                导出数据库
+                            </button>
+                            <button onclick="exitDatabase()" class="btn btn-danger btn-lg">
+                                <i class="bi bi-box-arrow-right"></i>
+                                退出数据库
+                            </button>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% if (!dbPath) { %>
+<script>
+document.getElementById('dbForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    const fileInput = document.getElementById('dbFile');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        alert('请选择数据库文件');
+        return;
+    }
+    
+    formData.append('database', file);
+    
+    // 显示进度条
+    const progressBar = document.querySelector('.progress-bar');
+    const progressDiv = document.getElementById('uploadProgress');
+    progressDiv.classList.remove('d-none');
+    
+    try {
+        const response = await fetch('/api/database/select', {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            const data = await response.json();
+            alert(data.error || '上传数据库失败');
+        }
+    } catch (err) {
+        alert('操作失败: ' + err.message);
+    } finally {
+        progressDiv.classList.add('d-none');
+    }
+});
+</script>
+<% } else { %>
+<script>
+async function exportDatabase() {
+    try {
+        window.location.href = '/api/database/export';
+    } catch (err) {
+        alert('导出失败: ' + err.message);
+    }
+}
+
+async function exitDatabase() {
+    if (!confirm('确定要退出当前数据库吗？这将删除临时数据库文件。')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/database/exit', {
+            method: 'POST'
+        });
+        
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            const data = await response.json();
+            alert(data.error || '退出数据库失败');
+        }
+    } catch (err) {
+        alert('操作失败: ' + err.message);
+    }
+}
+</script>
+<% } %> 

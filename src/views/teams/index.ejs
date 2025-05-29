@@ -1,0 +1,70 @@
+<%- contentFor('body') %>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2>球队列表</h2>
+                <span class="badge bg-primary">共 <%= teams.length %> 个球队</span>
+            </div>
+            
+            <div class="card-body">
+                <!-- 搜索框 -->
+                <form action="/teams" method="GET" class="search-box mb-4">
+                    <div class="input-group">
+                        <input type="text" 
+                               name="search" 
+                               class="form-control" 
+                               placeholder="搜索球队..." 
+                               value="<%= searchKeyword %>">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> 搜索
+                        </button>
+                        <% if (searchKeyword) { %>
+                            <a href="/teams" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> 清除
+                            </a>
+                        <% } %>
+                    </div>
+                </form>
+
+                <!-- 球队列表 -->
+                <% if (teams.length > 0) { %>
+                    <div class="list-group">
+                        <% teams.forEach(function(team) { %>
+                            <a href="/teams/<%= team.ID %>" 
+                               class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-1"><%= team.TeamName %></h5>
+                                        <% if (team.Nickname) { %>
+                                            <small class="text-muted">
+                                                <%= team.Nickname %>
+                                            </small>
+                                        <% } %>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="small text-muted">
+                                            <%= team.TeamLocation %>
+                                        </div>
+                                        <div class="small">
+                                            成立于 <%= team.TeamFoundYear %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <div class="alert alert-info text-center">
+                        <% if (searchKeyword) { %>
+                            没有找到匹配的球队
+                        <% } else { %>
+                            暂无球队数据
+                        <% } %>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div> 

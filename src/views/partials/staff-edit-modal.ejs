@@ -1,0 +1,126 @@
+<!-- 编辑员工模态框 -->
+<div class="modal fade" id="editStaffModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">编辑员工信息</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editStaffForm">
+                <div class="modal-body">
+                    <div class="alert alert-danger d-none" id="editError"></div>
+                    <input type="hidden" name="teamId" value="<%= team.ID %>">
+                    <div class="mb-3">
+                        <label class="form-label">姓名</label>
+                        <input type="text" 
+                               class="form-control" 
+                               name="name" 
+                               required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">能力值</label>
+                        <input type="number" 
+                               class="form-control" 
+                               name="ability" 
+                               min="0" 
+                               max="100" 
+                               required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">知名度</label>
+                        <input type="number" 
+                               class="form-control" 
+                               name="fame" 
+                               min="0" 
+                               required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        取消
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        保存
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('editStaffModal').addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const staffId = button.getAttribute('data-staff-id');
+    const staffName = button.getAttribute('data-staff-name');
+    const staffAbility = button.getAttribute('data-staff-ability');
+    const staffFame = button.getAttribute('data-staff-fame');
+    
+    const form = this.querySelector('#editStaffForm');
+    const errorDiv = form.querySelector('#editError');
+    errorDiv.classList.add('d-none');
+    
+    // 设置表单数据
+    form.setAttribute('data-staff-id', staffId);
+    form.querySelector('[name="name"]').value = staffName;
+    form.querySelector('[name="ability"]').value = staffAbility;
+    form.querySelector('[name="fame"]').value = staffFame;
+});
+
+document.getElementById('editStaffForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const staffId = form.getAttribute('data-staff-id');
+    const errorDiv = form.querySelector('#editError');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    try {
+        // 禁用提交按钮
+        submitBtn.disabled = true;
+        
+        // 收集表单数据
+        const formData = {
+            name: form.querySelector('[name="name"]').value.trim(),
+            ability: parseInt(form.querySelector('[name="ability"]').value),
+            fame: parseInt(form.querySelector('[name="fame"]').value)
+        };
+        
+        // 验证数据
+        if (!formData.name) {
+            throw new Error('姓名不能为空');
+        }
+        if (isNaN(formData.ability) || formData.ability < 0 || formData.ability > 100) {
+            throw new Error('能力值必须在0-100之间');
+        }
+        if (isNaN(formData.fame) || formData.fame < 0) {
+            throw new Error('知名度必须大于等于0');
+        }
+        
+        // 发送请求
+        const response = await fetch(`/staff/${staffId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.error || '保存失败');
+        }
+        
+        // 成功后刷新页面
+        window.location.reload();
+        
+    } catch (err) {
+        // 显示错误信息
+        errorDiv.textContent = err.message;
+        errorDiv.classList.remove('d-none');
+        
+        // 重新启用提交按钮
+        submitBtn.disabled = false;
+    }
+});
+</script> 

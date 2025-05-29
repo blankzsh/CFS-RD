@@ -1,0 +1,18 @@
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card mt-5">
+            <div class="card-body text-center">
+                <h3 class="card-title text-danger mb-4">
+                    <i class="bi bi-exclamation-triangle"></i> 错误
+                </h3>
+                <p class="card-text"><%= message %></p>
+                <% if (error && error.stack) { %>
+                    <div class="alert alert-danger mt-3">
+                        <pre class="mb-0"><%= error.stack %></pre>
+                    </div>
+                <% } %>
+                <a href="/" class="btn btn-primary mt-3">返回首页</a>
+            </div>
+        </div>
+    </div>
+</div> 

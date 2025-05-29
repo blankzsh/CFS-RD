@@ -1,0 +1,64 @@
+# 依赖目录
+node_modules/
+
+# 临时文件
+uploads/temp/
+*.tmp
+*.temp
+
+# 日志文件
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 运行时数据
+*.sqlite
+*.db
+*.db-journal
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE和编辑器文件
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+*.bak
+
+# 环境配置
+.env
+.env.local
+.env.*.local
+
+# 调试文件
+debug/
+.debug
+
+# 构建输出
+dist/
+build/
+out/
+
+# 覆盖率报告
+coverage/
+
+# 其他
+*.pid
+*.seed
+*.pid.lock 
+pnpm-lock.yaml
+
+#DB文件
+*.db
+*.db-journal
+*.db-trace
+*.db-wal
+*.db-shm
+*.db-lock
+*.db-trace

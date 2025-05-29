@@ -1,0 +1,150 @@
+body {
+  background-color: #F5F7FA;
+  color: #263238;
+  font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+  line-height: 1.6;
+}
+
+.card {
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.card-header {
+  border-bottom: 1px solid #ECEFF1;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+.card-header h2 {
+  color: #1E88E5;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.form-control {
+  border: 1px solid #E0E0E0;
+  border-radius: 4px;
+  padding: 8px 12px;
+  width: 100%;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.form-control:focus {
+  border-color: #1E88E5;
+  box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.1);
+  outline: none;
+}
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+.btn-primary {
+  background-color: #1E88E5;
+  color: white;
+}
+.btn-primary:hover {
+  background-color: #1565C0;
+}
+.btn-secondary {
+  background-color: #455A64;
+  color: white;
+}
+.btn-secondary:hover {
+  background-color: rgb(58.5887573964, 76.4201183432, 84.9112426036);
+}
+
+.team-logo {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #E0E0E0;
+}
+.team-logo-container {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.team-list {
+  list-style: none;
+  padding: 0;
+}
+.team-list li {
+  padding: 12px;
+  border-bottom: 1px solid #ECEFF1;
+  transition: background-color 0.3s;
+}
+.team-list li:hover {
+  background-color: #E3F2FD;
+}
+.team-list li.active {
+  background-color: #1E88E5;
+  color: white;
+}
+
+.staff-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.staff-table th, .staff-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ECEFF1;
+}
+.staff-table th {
+  background-color: #455A64;
+  color: white;
+}
+.staff-table tr:hover {
+  background-color: #E3F2FD;
+}
+
+.search-box {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.search-box input {
+  flex: 1;
+}
+
+.alert {
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+.alert-success {
+  background-color: rgb(243.2307692308, 249.7692307692, 243.5384615385);
+  color: rgb(73.2307692308, 164.7692307692, 77.5384615385);
+  border: 1px solid #66BB6A;
+}
+.alert-error {
+  background-color: hsl(1.1320754717, 83.2460732984%, 102.5490196078%);
+  color: rgb(234.7277486911, 37.0732984293, 33.2722513089);
+  border: 1px solid #EF5350;
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 15px;
+  }
+  .team-logo {
+    width: 100px;
+    height: 100px;
+  }
+  .btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  .search-box {
+    flex-direction: column;
+  }
+}
+
+/*# sourceMappingURL=main.css.map */
