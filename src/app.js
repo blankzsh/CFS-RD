@@ -7,6 +7,10 @@ const fs = require('fs');
 const os = require('os');
 const { v4: uuidv4 } = require('uuid');
 
+// 提前引入路由模块
+const teamRoutes = require('./routes/teams');
+const staffRoutes = require('./routes/staff');
+
 // 创建Express应用
 const app = express();
 
@@ -85,18 +89,18 @@ async function cleanupTempFile(filePath) {
         try {
             // 如果是数据库文件，先关闭连接
             if (filePath === app.get('dbPath')) {
-                const routes = require('./routes');
-                if (routes.staff && routes.staff.closeDatabase) {
-                    await routes.staff.closeDatabase();
+                // 使用已经引入的路由模块
+                if (staffRoutes.closeDatabase) {
+                    await staffRoutes.closeDatabase();
                 }
-                if (routes.teams && routes.teams.closeDatabase) {
-                    await routes.teams.closeDatabase();
+                if (teamRoutes.closeDatabase) {
+                    await teamRoutes.closeDatabase();
                 }
                 app.set('dbPath', null);
             }
 
             // 等待一小段时间确保连接完全关闭
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, 500));
 
             // 删除主数据库文件
             await fs.promises.unlink(filePath);
@@ -121,37 +125,8 @@ async function cleanupTempFile(filePath) {
     }
 }
 
-// 清理所有临时文件
-async function cleanupAllTempFiles() {
-    const tempDir = path.join(__dirname, 'uploads', 'temp');
-    if (fs.existsSync(tempDir)) {
-        try {
-            const files = await fs.promises.readdir(tempDir);
-            
-            for (const file of files) {
-                const filePath = path.join(tempDir, file);
-                if (filePath !== currentDbPath) {  // 不删除当前使用的文件
-                    await cleanupTempFile(filePath);
-                }
-            }
-        } catch (err) {
-            console.error('读取临时目录失败:', err);
-        }
-    }
-}
-
-// 定期清理临时文件（每小时执行一次）
-setInterval(cleanupAllTempFiles, 3600000);
-
-// 路由配置
-const teamRoutes = require('./routes/teams');
-const staffRoutes = require('./routes/staff');
-
 // 首页路由
 app.get('/', (req, res) => {
-    // 启动时清理旧的临时文件
-    cleanupAllTempFiles();
-    
     res.render('index', { 
         dbPath: app.get('dbPath') || null
     });
@@ -172,20 +147,6 @@ app.post('/api/database/select', dbUpload.single('database'), (req, res) => {
         // 保存新的临时文件路径
         currentDbPath = req.file.path;
         app.set('dbPath', currentDbPath);
-
-        // 设置退出处理程序（如果还没有设置）
-        if (!app.get('exitHandlerSet')) {
-            process.on('exit', () => {
-                cleanupTempFile(currentDbPath);
-                cleanupAllTempFiles();
-            });
-            process.on('SIGINT', () => {
-                cleanupTempFile(currentDbPath);
-                cleanupAllTempFiles();
-                process.exit();
-            });
-            app.set('exitHandlerSet', true);
-        }
 
         res.json({ success: true, dbPath: currentDbPath });
     } catch (err) {
@@ -229,11 +190,23 @@ app.post('/api/database/exit', async (req, res) => {
             return res.status(400).json({ error: '未连接数据库' });
         }
 
-        // 清理当前数据库文件
-        await cleanupTempFile(currentDbPath);
+        // 保存当前路径用于清理
+        const pathToClean = currentDbPath;
         
         // 重置数据库路径
         currentDbPath = null;
+        app.set('dbPath', null);
+
+        // 关闭数据库连接
+        if (staffRoutes.closeDatabase) {
+            await staffRoutes.closeDatabase();
+        }
+        if (teamRoutes.closeDatabase) {
+            await teamRoutes.closeDatabase();
+        }
+
+        // 清理临时文件
+        await cleanupTempFile(pathToClean);
 
         res.json({ success: true, message: '已成功退出数据库' });
     } catch (err) {

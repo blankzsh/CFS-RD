@@ -1,0 +1,134 @@
+<%- contentFor('title') %>员工管理
+
+<div class="container py-4">
+    <!-- 页面标题 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-person-badge"></i>
+            员工管理
+        </h2>
+        <div class="d-flex gap-2">
+            <a href="/" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+                返回首页
+            </a>
+        </div>
+    </div>
+
+    <!-- 搜索栏 -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form action="/staff" method="GET" class="row g-3 align-items-center">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" 
+                               name="search" 
+                               class="form-control" 
+                               placeholder="搜索员工姓名..."
+                               value="<%= searchKeyword %>">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="bi bi-search"></i>
+                        搜索
+                    </button>
+                    <% if (searchKeyword) { %>
+                        <a href="/staff" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i>
+                            清除
+                        </a>
+                    <% } %>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 员工列表 -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">员工列表</h5>
+                <span class="badge bg-primary">共 <%= staff.length %> 名员工</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">姓名</th>
+                            <th scope="col">能力值</th>
+                            <th scope="col">知名度</th>
+                            <th scope="col">所属球队</th>
+                            <th scope="col">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (staff.length === 0) { %>
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <i class="bi bi-inbox text-muted"></i>
+                                    暂无员工记录
+                                </td>
+                            </tr>
+                        <% } else { %>
+                            <% staff.forEach(function(member) { 
+                                let ability = 0;
+                                try {
+                                    ability = JSON.parse(member.AbilityJSON).rawAbility;
+                                } catch (e) {
+                                    console.error('解析能力值失败:', e);
+                                }
+                            %>
+                                <tr>
+                                    <td><%= member.ID %></td>
+                                    <td><%= member.Name %></td>
+                                    <td>
+                                        <% if (ability >= 80) { %>
+                                            <span class="text-success fw-bold"><%= ability %></span>
+                                        <% } else if (ability >= 60) { %>
+                                            <span class="text-primary"><%= ability %></span>
+                                        <% } else { %>
+                                            <%= ability %>
+                                        <% } %>
+                                    </td>
+                                    <td><%= member.Fame %></td>
+                                    <td>
+                                        <% if (member.TeamName) { %>
+                                            <a href="/teams/<%= member.TeamID %>" class="text-decoration-none">
+                                                <%= member.TeamName %>
+                                            </a>
+                                        <% } else { %>
+                                            <span class="text-muted">未分配</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editStaffModal"
+                                                data-staff-id="<%= member.ID %>"
+                                                data-staff-name="<%= member.Name %>"
+                                                data-staff-ability="<%= ability %>"
+                                                data-staff-fame="<%= member.Fame %>">
+                                            <i class="bi bi-pencil"></i>
+                                            编辑
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 引入编辑模态框 -->
+<%- include('../partials/staff-edit-modal') %> 
